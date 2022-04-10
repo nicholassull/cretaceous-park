@@ -76,5 +76,20 @@ namespace CretaceousPark.Controllers
     {
       return _db.Animals.Any(e => e.AnimalId == id);
     }
+
+    // DELETE: api/animals/2
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAnimal(int id)
+    {
+      var animal = await _db.Animals.FindAsync(id);
+      if (animal ==  null)
+      {
+        return NotFound();
+      }
+      _db.Animals.Remove(animal);
+      await _db.SaveChangesAsync();
+
+      return NoContent();
+    }
   }
 }
