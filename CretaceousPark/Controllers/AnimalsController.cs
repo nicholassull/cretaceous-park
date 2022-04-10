@@ -16,11 +16,24 @@ namespace CretaceousPark.Controllers
     {
       _db = db;
     }
+
     // GET api/animals
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Animal>>> Get()
+    public async Task<ActionResult<IEnumerable<Animal>>> Get(string species, string gender)
     {
-      return await _db.Animals.ToListAsync();
+      //We return a queryable object so that we can use LINQ methods to build onto the query before finalizing our selection.
+      var query = _db.Animals.AsQueryable();
+
+      if (species != null)
+      {
+        query = query.Where(entry => entry.Species == species);
+      }
+      if (gender != null)
+      {
+        query = query.Where(entry => entry.Gender ==gender);
+      }
+
+      return await query.ToListAsync();
     }
 
     // POST api/animals
