@@ -19,7 +19,7 @@ namespace CretaceousPark.Controllers
 
     // GET api/animals
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Animal>>> Get(string species, string gender, string name)
+    public async Task<ActionResult<IEnumerable<Animal>>> Get(string species, string gender, string name, int minimumAge)
     {
       //We return a queryable object so that we can use LINQ methods to build onto the query before finalizing our selection.
       var query = _db.Animals.AsQueryable();
@@ -35,6 +35,11 @@ namespace CretaceousPark.Controllers
       if (name != null)
       {
         query = query.Where(entry => entry.Name == name);
+      }
+      // Ints are non-nullable data types in C#, so minimumAge will be zero by default even if no parameter is entered. So, we check if it's > 0. 
+      if (minimumAge > 0)
+      {
+        query = query.Where(entry => entry.Age >= minimumAge);
       }
 
       return await query.ToListAsync();
