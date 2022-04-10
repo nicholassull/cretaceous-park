@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using CretaceousPark.Models;
 
@@ -29,7 +30,7 @@ namespace CretaceousPark.Controllers
       _db.Animals.Add(animal);
       await _db.SaveChangesAsync();
       //Will return the animal object to the user and update the status code to 201 (for 'Created').
-      return CreatedAtAction("Post", new { id = animal.AnimalId}, animal);
+      return CreatedAtAction(nameof(GetAnimal), new { id = animal.AnimalId }, animal);
     }
 
     //GET: api/animals/5
@@ -42,6 +43,38 @@ namespace CretaceousPark.Controllers
         return NotFound();
       }
       return animal;
+    }
+
+    //PUT: api/animals/2
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(int id, Animal animal)
+    {
+      if (id != animal.AnimalId)
+      {
+        return BadRequest();
+      }
+      _db.Entry(animal).State = EntityState.Modified;
+
+      try
+      {
+        await _db.SaveChangesAsync();
+      }
+      catch (DbUpdateConcurrencyException)
+      {
+        if (!AnimalExists(id))
+        {
+          return NotFound();
+        }
+        else
+        {
+          throw;
+        }
+      }
+      return NoContent();
+    }
+    private bool AnimalExists(int id)
+    {
+      return _db.Animals.Any(e => e.AnimalId == id);
     }
   }
 }
